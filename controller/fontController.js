@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require('fs');
-const upload = require("../utils/fontUtils");
+const upload = require("../middlewares/fontUtils");
 
 exports.uploadFont = upload.single("fontFile");
 

@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require('fs');
-const upload = require("../middlewares/fontUtils");
+const upload = require("../utils/fontUtils");
 
 exports.uploadFont = upload.single("fontFile");
 
@@ -16,22 +16,18 @@ exports.handleUpload = (req, res) => {
 
 exports.downloadFont = (req, res) => {
   const filename = req.params.filename;
-  const filePath = path.join("/tmp", filename);
-
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: "Font not found" });
-  }
+  const filePath = path.join(__dirname, "../uploads", filename);
 
   res.download(filePath, (err) => {
     if (err) {
       console.error("Error downloading the file:", err);
-      return res.status(500).json({ error: "Unable to download the font" });
+      res.status(404).send({ error: "Font not found" });
     }
   });
 };
 
 exports.getAllFonts = (req, res) => {
-  const uploadsDir = path.join("/tmp");
+  const uploadsDir = path.join(__dirname, "../uploads");
 
   fs.readdir(uploadsDir, (err, files) => {
     if (err) {
@@ -47,26 +43,27 @@ exports.getAllFonts = (req, res) => {
 
 exports.getFont = (req, res) => {
   const filename = req.params.filename;
-  const filePath = path.join("/tmp", filename);
+  const filePath = path.join(__dirname, "../uploads", filename);
+  // console.log(req.params,filePath);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: "Font not found" });
   }
-
   res.status(200).json({
     message: "Font retrieved successfully!",
     file: filename,
   });
 };
 
-exports.deleteFont = (req, res) => {
+exports.deleteFont = (req, res) => { 
   const filename = req.params.filename;
-  const filePath = path.join("/tmp", filename);
-  fs.unlink(filePath, (err) => {
+  const filePath = path.join(__dirname, "../uploads", filename);
+
+  fs.unlink(filePath, (err, data) => {
     if (err) {
       console.error("Error deleting the file:", err);
       return res.status(404).json({ error: "Font not found" });
     }
     res.status(200).json({ message: "Font deleted successfully!" });
-  });
-};
+  })
+}
